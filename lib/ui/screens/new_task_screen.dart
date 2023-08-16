@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:task_manager_getx/data/models/network_response.dart';
-import 'package:task_manager_getx/data/models/summary_count_model.dart';
 import 'package:task_manager_getx/data/models/task_list_model.dart';
 import 'package:task_manager_getx/data/services/network_caller.dart';
 import 'package:task_manager_getx/data/utils/urls.dart';
 import 'package:task_manager_getx/ui/screens/add_new_task_screen.dart';
+import 'package:task_manager_getx/ui/screens/state_manager/summary_count_controller.dart';
 import 'package:task_manager_getx/ui/screens/update_task_bottom_sheet.dart';
 import 'package:task_manager_getx/ui/screens/update_task_status_sheet.dart';
 import 'package:task_manager_getx/ui/screens/widgets/screen_background.dart';
@@ -21,44 +22,20 @@ class NewTaskScreen extends StatefulWidget {
 }
 
 class _NewTaskScreenState extends State<NewTaskScreen> {
-  bool _getCountSummaryInProgress = false,
-      _getNewTaskInProgress = false;
-  SummaryCountModel _summaryCountModel = SummaryCountModel();
+  bool _getNewTaskInProgress = false;
   TaskListModel _taskListModel = TaskListModel();
+
+  final SummaryCountController _summaryCountController = Get.find<SummaryCountController>();
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      getCountSummary();
+      _summaryCountController.getCountSummary();
       getNewTask();
     });
   }
 
-  Future<void> getCountSummary() async {
-    _getCountSummaryInProgress = true;
-    if (mounted) {
-      setState(() {
-
-      });
-    }
-    final NetworkResponse response = await NetworkCaller().getRequest(
-        Urls.taskStatusCount);
-    if (response.isSuccess) {
-      _summaryCountModel = SummaryCountModel.fromJson(response.body!);
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Get new task data failed")));
-      }
-    }
-    _getCountSummaryInProgress = false;
-    if (mounted) {
-      setState(() {
-
-      });
-    }
-  }
 
   Future<void> getNewTask() async {
     _getNewTaskInProgress = true;
@@ -111,37 +88,41 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
       body: ScreenBackground(
         child: Column(
           children: [
-            const UserProfileAppBar(
-              isUpdateScreen: false,
-            ),
-            _getCountSummaryInProgress ?
-            const LinearProgressIndicator()
-                : Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: SizedBox(
-                height: 80,
-                width: double.infinity,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _summaryCountModel.data?.length ?? 0,
-                  itemBuilder: (context, index) {
-                    return SummaryCard(
-                      title: _summaryCountModel.data![index].sId ?? 'New',
-                      number: _summaryCountModel.data![index].sum ?? 0,
-                    );
-                  },
-                  separatorBuilder: (BuildContext context, int index) {
-                    return const Divider(height: 4.0,);
-                  },
-                ),
+            const UserProfileAppBar(),
+            GetBuilder<SummaryCountController>(builder: (_) {
+                if(_summaryCountController.getCountSummaryInProgress){
+                  return const Center(
+                    child: LinearProgressIndicator(),
+                  );
+                }
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: SizedBox(
+                      height: 80,
+                      width: double.infinity,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _summaryCountController.summaryCountModel.data?.length ?? 0,
+                        itemBuilder: (context, index) {
+                          return SummaryCard(
+                            title: _summaryCountController.summaryCountModel.data![index].sId ?? 'New',
+                            number: _summaryCountController.summaryCountModel.data![index].sum ?? 0,
+                          );
+                        },
+                        separatorBuilder: (BuildContext context, int index) {
+                          return const Divider(height: 4.0,);
+                        },
+                      ),
+                    ),
+                  );
+                }
               ),
-            ),
 
             Expanded(
               child: RefreshIndicator(
                 onRefresh: () async {
                   getNewTask();
-                  getCountSummary();
+                  _summaryCountController.getCountSummary();
                 },
                 child: _getNewTaskInProgress ? const Center(
                   child: CircularProgressIndicator(),
