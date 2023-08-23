@@ -76,7 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                            _passwordTEController.text
                                        ).then((result) {
                                          if(result == true){
-                                           Get.offAll(const BottomNavBaseScreen());
+                                           Get.off(() =>const BottomNavBaseScreen());
                                          } else {
                                            Get.snackbar('Failed', 'Login failed try again.');
                                          }
@@ -90,8 +90,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 16,),
                     Center(
                         child: InkWell(onTap: (){
-                          Navigator.push(context, MaterialPageRoute(
-                              builder: (context) => const EmailVerificationScreen()));
+
+                          Get.to(const EmailVerificationScreen());
+
+                          // Navigator.push(context, MaterialPageRoute(
+                          //     builder: (context) => const EmailVerificationScreen()));
                         },
                             child: const Text('Forget Password',
                               style: TextStyle(
@@ -105,9 +108,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           letterSpacing: 0.5
                         ),),
                         TextButton(onPressed: (){
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (context) =>
-                              const SignUpScreen()));
+
+                          Get.off(() => const SignUpScreen());
+
+                          // Navigator.push(context,
+                          //     MaterialPageRoute(builder: (context) =>
+                          //     const SignUpScreen()));
                         }, child: const Text('Sign up')),
                       ],
                     )

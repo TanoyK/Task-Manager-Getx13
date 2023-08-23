@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:task_manager_getx/data/models/network_response.dart';
-import 'package:task_manager_getx/data/services/network_caller.dart';
-import 'package:task_manager_getx/data/utils/urls.dart';
+import 'package:get/get.dart';
+import 'package:task_manager_getx/ui/screens/auth/login_screen.dart';
 import 'package:task_manager_getx/ui/screens/auth/otp_verification_screen.dart';
+import 'package:task_manager_getx/ui/screens/state_manager/email_verification_controller.dart';
 import 'package:task_manager_getx/ui/screens/widgets/screen_background.dart';
 
 
@@ -15,38 +15,9 @@ class EmailVerificationScreen extends StatefulWidget {
 }
 
 class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
-  bool _emailVerificationInProgress = false;
-  final TextEditingController _emailTEController = TextEditingController();
 
-  Future<void> sendOTPToEmail () async{
-    _emailVerificationInProgress = true;
-    if(mounted){
-      setState(() { });
-    }
-    final NetworkResponse response = await NetworkCaller()
-        .getRequest(Urls.sendOtpToEmail(_emailTEController.text.trim()));
-    _emailVerificationInProgress = false;
-    if(mounted){
-      setState(() { });
-    }
-
-    if(response.isSuccess) {
-      if (mounted) {
-        Navigator.push(
-            context, MaterialPageRoute(
-            builder: (context) =>
-                OtpVerificationScreen(
-                  email: _emailTEController.text.trim(),)));
-
-    }
-    }else{
-      if(mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(
-            const SnackBar(content: Text('Email verification has been failed')));
-        }
-      }
-  }
+  final EmailVerificationController emailVerificationController = Get.put<EmailVerificationController>(EmailVerificationController());
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -56,56 +27,72 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
           child: SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 64),
-                  Text('Your email address',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 4),
-                  Text('A 6 digit verification pin will send to your email address',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.grey,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 64),
+                    Text('Your email address',
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  TextField(
-                    controller: _emailTEController,
-                    keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
-                        hintText: 'Email',
-                      )
-                  ),
-                  const SizedBox(height: 16,),
-                  SizedBox(
-                      width: double.infinity,
-                      child: Visibility(
-                        visible: _emailVerificationInProgress == false,
-                        replacement: const Center(
-                          child: CircularProgressIndicator(),),
-                        child: ElevatedButton(
-                            onPressed: (){
-                              sendOTPToEmail();
-                        } ,
-                            child: const Icon(Icons.arrow_circle_right_outlined)),
-                      )),
+                    const SizedBox(height: 4),
+                    Text('A 6 digit verification pin will send to your email address',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    TextField(
+                      controller: emailVerificationController.emailTEController,
+                      keyboardType: TextInputType.emailAddress,
+                        decoration: const InputDecoration(
+                          hintText: 'Email',
+                        )
+                    ),
+                    const SizedBox(height: 16,),
+                    SizedBox(
+                        width: double.infinity,
+                        child: Visibility(
+                          visible: emailVerificationController.emailVerificationInProgress == false,
+                          replacement: const Center(
+                            child: CircularProgressIndicator(),),
+                          child: ElevatedButton(
+                              onPressed: (){
+                                if(_formKey.currentState!.validate()){
+                                  emailVerificationController.sendOTPToEmail().then((value){
 
-                  const SizedBox(height: 16,),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text("Have an account?", style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 0.5
-                      ),),
-                      TextButton(onPressed: (){
-                        Navigator.pop(context);
-                      },
-                          child: const Text('Sign in')),
-                    ],
-                  )
-                ],
+                                    if(value == true){
+                                      Get.to(() => OtpVerificationScreen(email: emailVerificationController.emailTEController.text.trim()));
+                                    }
+                                    else{
+                                      Get.snackbar('Fail', 'Email verification fail');
+                                    }
+                                  });
+
+                                }
+                                 } ,
+                              child: const Icon(Icons.arrow_circle_right_outlined)),
+                        )),
+
+                    const SizedBox(height: 16,),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text("Have an account?", style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 0.5
+                        ),),
+                        TextButton(onPressed: (){
+
+                          Get.to(const LoginScreen());
+                          // Navigator.pop(context);
+                        },
+                            child: const Text('Sign in')),
+                      ],
+                    )
+                  ],
+                ),
               ),
             ),
           ),

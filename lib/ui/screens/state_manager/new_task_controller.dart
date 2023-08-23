@@ -19,6 +19,7 @@ class NewTaskController extends GetxController{
     update();
     final NetworkResponse response = await NetworkCaller().getRequest(
         Urls.newTask);
+    _getNewTaskInProgress = false;
     if (response.isSuccess) {
       _taskListModel = TaskListModel.fromJson(response.body!);
       update();
