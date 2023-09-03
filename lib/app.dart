@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_navigation/get_navigation.dart';
 import 'package:task_manager_getx/ui/screens/splash_screen.dart';
 import 'package:task_manager_getx/ui/screens/state_manager/login_controller.dart';
 import 'package:task_manager_getx/ui/screens/state_manager/new_task_controller.dart';
@@ -45,7 +44,7 @@ class _TaskManagerAppState extends State<TaskManagerApp> {
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            padding: EdgeInsets.symmetric(vertical: 10),
+            padding: const EdgeInsets.symmetric(vertical: 10),
             elevation: 3,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),

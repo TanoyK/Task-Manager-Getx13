@@ -43,13 +43,23 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    TextField(
+                    TextFormField(
                       controller: emailVerificationController.emailTEController,
                       keyboardType: TextInputType.emailAddress,
                         decoration: const InputDecoration(
                           hintText: 'Email',
-                        )
-                    ),
+                        ),
+                      validator: (value){
+                        if(value == null || value.isEmpty){
+                          return 'Enter your email address';
+                        }
+                        if(!GetUtils.isEmail(value)){
+                          return 'Enter your valid email';
+                        }
+                        print('Email: ${GetUtils.isEmail(value)}');
+                        return null;
+                      },),
+
                     const SizedBox(height: 16,),
                     SizedBox(
                         width: double.infinity,

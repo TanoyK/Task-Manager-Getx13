@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:task_manager_getx/data/models/auth_utility.dart';
 import 'package:task_manager_getx/data/models/login_model.dart';
 import 'package:task_manager_getx/data/models/network_response.dart';
 import 'package:task_manager_getx/data/services/network_caller.dart';
 import 'package:task_manager_getx/data/utils/urls.dart';
+import 'package:task_manager_getx/ui/screens/state_manager/update_profile_controller.dart';
 import 'package:task_manager_getx/ui/screens/widgets/screen_background.dart';
 import 'package:task_manager_getx/ui/screens/widgets/user_profile_banner.dart';
 
@@ -23,6 +26,9 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   final TextEditingController _lastNameTEController = TextEditingController();
   final TextEditingController _mobileTEController = TextEditingController();
   final TextEditingController _passwordTEController = TextEditingController();
+
+  final UpdateProfileController updateProfileController =
+  Get.put<UpdateProfileController>(UpdateProfileController());
 
   // home task form validation
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();

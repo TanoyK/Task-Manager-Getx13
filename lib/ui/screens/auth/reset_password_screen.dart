@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:task_manager_getx/data/models/network_response.dart';
-import 'package:task_manager_getx/data/services/network_caller.dart';
-import 'package:task_manager_getx/data/utils/urls.dart';
+import 'package:get/get.dart';
 import 'package:task_manager_getx/ui/screens/auth/login_screen.dart';
+import 'package:task_manager_getx/ui/screens/state_manager/reset_password_controller.dart';
 import 'package:task_manager_getx/ui/screens/widgets/screen_background.dart';
 
 
@@ -15,46 +14,12 @@ class ResetPasswordScreen extends StatefulWidget {
 }
 
 class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
-  final TextEditingController _passwordTEController = TextEditingController();
-  final TextEditingController _confirmTEController = TextEditingController();
-  bool _setPasswordInProgress = false;
-  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  Future<void> resetPassword()async{
-    _setPasswordInProgress = true;
-    if(mounted){
-      setState(() { });
-    }
-    final Map<String,dynamic> requestBody = {
-        "email": widget.email,
-        "OTP": widget.otp,
-        "password": _passwordTEController.text
-    };
+  final ResetPasswordController resetPasswordController =
+  Get.put<ResetPasswordController>(ResetPasswordController());
 
-    final NetworkResponse response = await
-    NetworkCaller().postRequest(Urls.resetPassword, requestBody);
-    _setPasswordInProgress = false;
-    if(mounted){
-      setState(() { });
-    }
-    if(response.isSuccess){
-      if(mounted){
-        ScaffoldMessenger.of(context)
-            .showSnackBar(
-            const SnackBar(content: Text('Password reset successful!')));
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-        Navigator.pushAndRemoveUntil(context,
-              MaterialPageRoute(builder: (context) => const LoginScreen()),
-                  (route) => false);
-        }
-      } else{
-        if(mounted) {
-          ScaffoldMessenger.of(context)
-            .showSnackBar(
-            const SnackBar(content: Text('Reset Password has been failed')));
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +46,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     ),
                     const SizedBox(height: 24),
                     TextFormField(
-                      controller: _passwordTEController,
+                      controller: resetPasswordController.passwordTEController,
                       keyboardType: TextInputType.emailAddress,
                       obscureText: true,
                         decoration: const InputDecoration(
@@ -98,7 +63,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     const SizedBox(height: 16,),
 
                      TextFormField(
-                       controller: _confirmTEController,
+                       controller: resetPasswordController.confirmTEController,
                       obscureText: true,
                         decoration: const InputDecoration(
                           hintText: 'Confirm Password',
@@ -106,7 +71,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                        validator: (String? value){
                          if(value?.isEmpty ?? true){
                            return 'Enter your confirm password';
-                         }else if(value! != _passwordTEController.text){
+                         }else if(value! != resetPasswordController.passwordTEController){
                             return "Confirm password does n\'t match";
                          }
                          return null;
@@ -117,16 +82,25 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     SizedBox(
                         width: double.infinity,
                         child: Visibility(
-                          visible: _setPasswordInProgress == false,
+                          visible: resetPasswordController.setPasswordInProgress == false,
                           replacement: const Center(
                             child: CircularProgressIndicator(),
                           ),
                           child: ElevatedButton(
                             onPressed: (){
-                            if(!_formKey.currentState!.validate()){
-                              return;
+
+                            if(_formKey.currentState!.validate()){
+                              resetPasswordController.resetPassword(
+                                widget.email, widget.otp).then((value){
+                                if(value == true){
+                                  Get.snackbar('Success','Password reset successful');
+                                  Get.offAll(() => const LoginScreen());
+                                }
+                                else{
+                                  Get.snackbar('Fail', 'Reset password failed');
+                                }
+                              });
                             }
-                            resetPassword();
                           } ,
                               child: const Text('Confirm'),
                           ),

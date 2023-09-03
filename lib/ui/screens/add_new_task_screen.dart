@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:task_manager_getx/data/models/network_response.dart';
 import 'package:task_manager_getx/data/services/network_caller.dart';
 import 'package:task_manager_getx/data/utils/urls.dart';
+import 'package:task_manager_getx/ui/screens/state_manager/add_new_task_controller.dart';
 import 'package:task_manager_getx/ui/screens/widgets/user_profile_banner.dart';
 
 
@@ -13,44 +15,8 @@ class AddNewTaskScreen extends StatefulWidget {
 }
 
 class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
-  final TextEditingController _titleTEController = TextEditingController();
-  final TextEditingController _descriptionTEController = TextEditingController();
-  bool _addNewTaskInProgress = false;
 
-  Future<void> addNewTask() async{
-    _addNewTaskInProgress = true;
-    if(mounted){
-      setState(() {
-
-      });
-    }
-    Map<String, dynamic> requestBody = {
-      "title": _titleTEController.text.trim(),
-    "description": _descriptionTEController.text.trim(),
-    "status":"New"
-  };
-    final NetworkResponse response = await
-      NetworkCaller().postRequest(Urls.createTask, requestBody );
-    _addNewTaskInProgress = false;
-    if(mounted){
-      setState(() {
-
-      });
-    }
-    if(response.isSuccess){
-      _titleTEController.clear();
-      _descriptionTEController.clear();
-      if(mounted){
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Task added successfully')));
-      }
-    }else{
-      if(mounted){
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Task add failed')));
-      }
-    }
-  }
+  final AddNewTaskController addNewTaskController = Get.put<AddNewTaskController>(AddNewTaskController());
 
 
   @override
@@ -80,14 +46,14 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
                   ),
                   const SizedBox(height: 16,),
                    TextFormField(
-                     controller: _titleTEController,
+                     controller: addNewTaskController.titleTEController,
                     decoration: const InputDecoration(
                       hintText: 'Title'
                     ),
                   ),
                   const SizedBox(height: 8,),
                   TextFormField(
-                    controller: _descriptionTEController,
+                    controller: addNewTaskController.descriptionTEController,
                     maxLines: 4,
                     decoration: const InputDecoration(
                         hintText: 'Description'
@@ -97,13 +63,13 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
                   SizedBox(
                       width: double.infinity,
                       child: Visibility(
-                        visible: _addNewTaskInProgress == false,
+                        visible: addNewTaskController.addNewTaskInProgress == false,
                             replacement: const Center(
                               child: CircularProgressIndicator(),
                             ),
                             child: ElevatedButton(
                             onPressed: (){
-                              addNewTask();
+                              addNewTaskController.addNewTask();
                         } ,
                             child: const Icon(Icons.arrow_forward_ios)),
                       )

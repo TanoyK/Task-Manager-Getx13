@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:task_manager_getx/data/models/auth_utility.dart';
 import 'package:task_manager_getx/ui/screens/auth/login_screen.dart';
 import 'package:task_manager_getx/ui/screens/update_profile_screen.dart';
@@ -24,11 +25,15 @@ class _UserProfileAppBarState extends State<UserProfileAppBar> {
       title: GestureDetector(
         onTap: (){
           if((widget.isUpdateScreen ?? false) == false) {
+
+            // Get.off(() => const UpdateProfileScreen());
+
             Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => const UpdateProfileScreen()
                 ));
+
           }
         },
         child: Row(
@@ -77,7 +82,10 @@ class _UserProfileAppBarState extends State<UserProfileAppBar> {
           IconButton(
             onPressed: () async {
              await AuthUtility.clearUserInfo();
+
              if(mounted) {
+
+              // Get.offAll(const LoginScreen());
                Navigator.pushAndRemoveUntil(context,
                    MaterialPageRoute(builder: (context) => const LoginScreen()),
                        (route) => false);

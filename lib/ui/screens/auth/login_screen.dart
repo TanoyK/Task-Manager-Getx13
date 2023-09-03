@@ -44,20 +44,33 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 16),
-                    TextField(
+                    TextFormField(
                       controller: _emailTEController,
                       keyboardType: TextInputType.emailAddress,
                       decoration: const InputDecoration(
                         hintText: 'Email',
-                        )
+                        ),
+                      validator: (String? value ){
+                        if(value?.isEmpty ?? true){
+                          return 'Enter your email';
+
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 12,),
-                    TextField(
+                    TextFormField(
                       controller: _passwordTEController,
                       obscureText: true,
                         decoration: const InputDecoration(
                           hintText: 'Password',
-                        )
+                        ),
+                      validator: (String? value ){
+                        if((value?.isEmpty ?? true) || value!.length <= 5){
+                          return 'Enter a password more than 6 letter';
+                        }
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 12,),
                     GetBuilder<LoginController>(
